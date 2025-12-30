@@ -31,6 +31,27 @@ export async function analyzeMediaForManipulation(
   return analyzeMediaForManipulationFlow(input);
 }
 
+
+const analysisPrompt = ai.definePrompt({
+    name: 'mediaManipulationAnalysisPrompt',
+    input: { schema: AnalyzeMediaForManipulationInputSchema },
+    output: { schema: AnalyzeMediaForManipulationOutputSchema },
+    prompt: `You are a world-class digital media forensics expert. Your task is to analyze the provided media file for any signs of digital manipulation, including deepfakes, generative AI content, or other alterations.
+
+    Media to Analyze:
+    {{media url=mediaUrl}}
+
+    Your analysis should focus exclusively on the content of the media itself. Look for clues such as:
+    - Visual inconsistencies (e.g., unnatural lighting, strange shadows, inconsistent focus, weird blurring around edges).
+    - Artifacts from generative models (e.g., waxy skin textures, strange patterns in the background, distorted hands or eyes).
+    - Audio anomalies (e.g., robotic-sounding speech, lack of background noise, unnatural intonation or pacing) if audio is present.
+    - Compression or quality inconsistencies that might suggest splicing or editing.
+
+    Based on your analysis, provide a list of specific, observable signals of potential manipulation in the 'reasons' field. If you find no signals, return an empty array.
+    Also, provide a list of potential variants of the media you can infer from the content in the 'variants' field.
+    `,
+});
+
 const analyzeMediaForManipulationFlow = ai.defineFlow(
   {
     name: 'analyzeMediaForManipulationFlow',
@@ -38,15 +59,7 @@ const analyzeMediaForManipulationFlow = ai.defineFlow(
     outputSchema: AnalyzeMediaForManipulationOutputSchema,
   },
   async input => {
-    // This flow is now simplified. It only returns AI-flagged signals.
-    // The overall risk level and provenance are handled elsewhere.
-    return {
-      reasons: [
-        'Visual inconsistencies detected in lighting around the subject.',
-        'Audio analysis suggests a potential voice clone due to unnatural intonation.',
-        'Compression artifacts are unusually high for a source of this nature.',
-      ],
-      variants: ['Same media, different caption', 'Cropped version of media'],
-    };
+    const { output } = await analysisPrompt(input);
+    return output!;
   }
 );
