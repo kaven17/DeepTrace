@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import {z} from 'genkit';
 
 const AnalyzeMediaForManipulationInputSchema = z.object({
@@ -59,7 +60,13 @@ const analyzeMediaForManipulationFlow = ai.defineFlow(
     outputSchema: AnalyzeMediaForManipulationOutputSchema,
   },
   async input => {
-    const { output } = await analysisPrompt(input);
+    const { output } = await ai.generate({
+      model: googleAI.model('gemini-2.5-pro'),
+      prompt: analysisPrompt.render({ input }),
+      output: {
+        schema: AnalyzeMediaForManipulationOutputSchema,
+      },
+    });
     return output!;
   }
 );
