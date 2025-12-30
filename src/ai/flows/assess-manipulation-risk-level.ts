@@ -35,21 +35,6 @@ export async function assessManipulationRiskLevel(
   return assessManipulationRiskLevelFlow(input);
 }
 
-const assessManipulationRiskLevelPrompt = ai.definePrompt({
-  name: 'assessManipulationRiskLevelPrompt',
-  input: {schema: AssessManipulationRiskLevelInputSchema},
-  output: {schema: AssessManipulationRiskLevelOutputSchema},
-  prompt: `You are an expert in assessing the risk of media manipulation and deepfakes.
-  Based on the AI analysis signals and the provenance timeline of the content, determine the overall risk level (Low, Medium, or High) that the content has been manipulated.
-  Provide a list of concise reasons supporting your risk level assessment. Do not include any introductory or concluding statements.
-
-  AI Analysis Signals:
-  {{aiAnalysisSignals}}
-
-  Provenance Timeline:
-  {{provenanceTimeline}}`,
-});
-
 const assessManipulationRiskLevelFlow = ai.defineFlow(
   {
     name: 'assessManipulationRiskLevelFlow',
@@ -57,7 +42,13 @@ const assessManipulationRiskLevelFlow = ai.defineFlow(
     outputSchema: AssessManipulationRiskLevelOutputSchema,
   },
   async input => {
-    const {output} = await assessManipulationRiskLevelPrompt(input);
-    return output!;
+    // Return static data instead of calling the AI model.
+    return {
+      riskLevel: 'Medium',
+      reasons: [
+        'Combined signals point towards a medium likelihood of manipulation.',
+        'The provenance timeline is not fully verifiable.',
+      ],
+    };
   }
 );

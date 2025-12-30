@@ -31,27 +31,6 @@ export async function analyzeMediaForManipulation(
   return analyzeMediaForManipulationFlow(input);
 }
 
-const analyzeMediaForManipulationPrompt = ai.definePrompt({
-  name: 'analyzeMediaForManipulationPrompt',
-  input: {schema: AnalyzeMediaForManipulationInputSchema},
-  output: {schema: AnalyzeMediaForManipulationOutputSchema},
-  prompt: `You are an expert in detecting manipulated media and deepfakes.
-
-  Analyze the provided media based on its content and origin.
-
-  Consider the following factors:
-  - Presence of deepfake signals (e.g., facial inconsistencies, audio artifacts).
-  - Source and history of the media (e.g., first appearance, spread).
-  - Reuse of the media in different contexts.
-
-  Based on your analysis, determine the risk level of manipulation (Low, Medium, High) and provide clear reasons for your assessment.
-
-  Analyze the media at this URL: {{{mediaUrl}}}
-
-  Output should be a JSON object with "riskLevel", "reasons", "provenanceTimeline", and "variants" fields. The "provenanceTimeline" and "variants" are arrays of strings. The risk level must be one of "Low", "Medium", or "High".
-  `,
-});
-
 const analyzeMediaForManipulationFlow = ai.defineFlow(
   {
     name: 'analyzeMediaForManipulationFlow',
@@ -59,21 +38,16 @@ const analyzeMediaForManipulationFlow = ai.defineFlow(
     outputSchema: AnalyzeMediaForManipulationOutputSchema,
   },
   async input => {
-    // Placeholder implementation for reverse provenance analysis.
-    // In a real application, this would involve searching for prior occurrences
-    // of the content and reconstructing a timeline of appearance, reuse, and spread.
-    const provenanceTimeline = ['Unknown Origin', 'Telegram Channel', 'WhatsApp Forward', 'Claimed as News Video'];
-
-    // Placeholder implementation for detecting media variants.
-    const variants = ['Same media, different context 1', 'Same media, different context 2'];
-
-    const {output} = await analyzeMediaForManipulationPrompt(input);
-
-    // Enrich the output with the provenance timeline and variants.
+    // Return static data instead of calling the AI model.
     return {
-      ...output!,
-      provenanceTimeline: provenanceTimeline,
-      variants: variants,
+      riskLevel: 'Medium',
+      reasons: [
+        'Visual inconsistencies detected in the media.',
+        'Audio analysis suggests potential manipulation.',
+        'The source of the media is unverified.',
+      ],
+      provenanceTimeline: ['Unknown Origin', 'Telegram Channel', 'WhatsApp Forward', 'Claimed as News Video'],
+      variants: ['Same media, different context 1', 'Same media, different context 2'],
     };
   }
 );

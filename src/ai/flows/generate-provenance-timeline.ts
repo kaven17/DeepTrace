@@ -40,18 +40,6 @@ export async function generateProvenanceTimeline(
   return generateProvenanceTimelineFlow(input);
 }
 
-const generateProvenanceTimelinePrompt = ai.definePrompt({
-  name: 'generateProvenanceTimelinePrompt',
-  input: {schema: GenerateProvenanceTimelineInputSchema},
-  output: {schema: GenerateProvenanceTimelineOutputSchema},
-  prompt: `You are an expert in analyzing the provenance of online content. Given the media fingerprint and media type, your goal is to reconstruct the timeline of the content's appearance, reuse, and spread across the internet. Analyze public sources to identify when and where the content first appeared, how it has been reused in different contexts, and the speed at which it spread.
-
-Media Fingerprint: {{{mediaFingerprint}}}
-Media Type: {{{mediaType}}}
-
-Based on your analysis, generate a risk assessment (Low, Medium, or High) indicating the likelihood that the content has been manipulated or is being used for malicious purposes. Provide a clear explanation for your assessment. The risk assessment should be`,
-});
-
 const generateProvenanceTimelineFlow = ai.defineFlow(
   {
     name: 'generateProvenanceTimelineFlow',
@@ -59,7 +47,15 @@ const generateProvenanceTimelineFlow = ai.defineFlow(
     outputSchema: GenerateProvenanceTimelineOutputSchema,
   },
   async input => {
-    const {output} = await generateProvenanceTimelinePrompt(input);
-    return output!;
+    // Return static data instead of calling the AI model.
+    return {
+      timeline: [
+        { platform: 'Telegram', timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), contextSummary: 'Shared in a public channel with a sensationalist headline.' },
+        { platform: 'WhatsApp', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), contextSummary: 'Forwarded multiple times in various groups without source attribution.' },
+        { platform: 'News Blog', timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), contextSummary: 'Embedded in a blog post with a misleading narrative.' },
+      ],
+      riskAssessment: 'Medium',
+      summary: 'The media first appeared on a social platform and was later used in a misleading blog post, indicating a medium risk of manipulation for disinformation purposes.'
+    };
   }
 );
