@@ -1,6 +1,7 @@
 'use server';
 /**
- * @fileOverview Analyzes media for potential manipulation using AI-powered deepfake detection and reverse provenance analysis.
+ * @fileOverview AI flow to analyze media for manipulation signals.
+ * This flow should ONLY focus on interpreting the media content itself.
  *
  * - analyzeMediaForManipulation - A function that handles the media analysis process.
  * - AnalyzeMediaForManipulationInput - The input type for the analyzeMediaForManipulation function.
@@ -14,14 +15,13 @@ const AnalyzeMediaForManipulationInputSchema = z.object({
   mediaUrl: z
     .string()
     .describe('The URL or data URI of the media file to analyze.'),
+  mediaType: z.enum(['image', 'video', 'audio', 'url']).describe('Type of the media uploaded by the user'),
 });
 export type AnalyzeMediaForManipulationInput = z.infer<typeof AnalyzeMediaForManipulationInputSchema>;
 
 const AnalyzeMediaForManipulationOutputSchema = z.object({
-  riskLevel: z.enum(['Low', 'Medium', 'High']).describe('The assessed risk level of manipulation.'),
-  reasons: z.array(z.string()).describe('Reasons for the assigned risk level.'),
-  provenanceTimeline: z.array(z.string()).describe('A timeline of the media provenance.'),
-  variants: z.array(z.string()).describe('Detected variants of the media.'),
+  reasons: z.array(z.string()).describe('AI-flagged signals of potential manipulation.'),
+  variants: z.array(z.string()).describe('Descriptions of detected variants of the media.'),
 });
 export type AnalyzeMediaForManipulationOutput = z.infer<typeof AnalyzeMediaForManipulationOutputSchema>;
 
@@ -38,16 +38,15 @@ const analyzeMediaForManipulationFlow = ai.defineFlow(
     outputSchema: AnalyzeMediaForManipulationOutputSchema,
   },
   async input => {
-    // Return static data instead of calling the AI model.
+    // This flow is now simplified. It only returns AI-flagged signals.
+    // The overall risk level and provenance are handled elsewhere.
     return {
-      riskLevel: 'Medium',
       reasons: [
-        'Visual inconsistencies detected in the media.',
-        'Audio analysis suggests potential manipulation.',
-        'The source of the media is unverified.',
+        'Visual inconsistencies detected in lighting around the subject.',
+        'Audio analysis suggests a potential voice clone due to unnatural intonation.',
+        'Compression artifacts are unusually high for a source of this nature.',
       ],
-      provenanceTimeline: ['Unknown Origin', 'Telegram Channel', 'WhatsApp Forward', 'Claimed as News Video'],
-      variants: ['Same media, different context 1', 'Same media, different context 2'],
+      variants: ['Same media, different caption', 'Cropped version of media'],
     };
   }
 );
