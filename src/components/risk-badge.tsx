@@ -5,6 +5,7 @@ import type { AnalysisResult } from '@/lib/types';
 
 interface RiskBadgeProps {
   riskLevel: AnalysisResult['riskLevel'];
+  confidence: AnalysisResult['confidence'];
   size?: 'sm' | 'lg';
 }
 
@@ -12,24 +13,27 @@ const riskConfig = {
   Low: {
     icon: ShieldCheck,
     color: 'text-risk-low',
-    bgColor: 'bg-risk-low/10',
-    borderColor: 'border-risk-low/20',
+    borderColor: 'hsl(var(--risk-low))',
   },
   Medium: {
     icon: ShieldAlert,
     color: 'text-risk-medium',
-    bgColor: 'bg-risk-medium/10',
-    borderColor: 'border-risk-medium/20',
+    borderColor: 'hsl(var(--risk-medium))',
   },
   High: {
     icon: ShieldX,
     color: 'text-risk-high',
-    bgColor: 'bg-risk-high/10',
-    borderColor: 'border-risk-high/20',
+    borderColor: 'hsl(var(--risk-high))',
   },
 };
 
-const RiskBadge: React.FC<RiskBadgeProps> = ({ riskLevel, size = 'sm' }) => {
+const confidencePulse = {
+    High: 'animate-pulse-strong',
+    Medium: 'animate-pulse-medium',
+    Low: ''
+}
+
+const RiskBadge: React.FC<RiskBadgeProps> = ({ riskLevel, confidence, size = 'sm' }) => {
   const config = riskConfig[riskLevel] || riskConfig.Medium;
   const Icon = config.icon;
 
@@ -44,17 +48,26 @@ const RiskBadge: React.FC<RiskBadgeProps> = ({ riskLevel, size = 'sm' }) => {
   };
 
   return (
-    <div
-      className={cn(
-        'inline-flex items-center justify-center gap-2 font-headline font-bold rounded-full border-2',
-        config.color,
-        config.bgColor,
-        config.borderColor,
-        sizeClasses[size]
-      )}
-    >
-      <Icon className={cn(iconSizeClasses[size])} />
-      <span>{riskLevel} Risk</span>
+    <div className="relative">
+      <div
+        className={cn(
+          'absolute -inset-1 rounded-full opacity-75 blur-md',
+          config.color.replace('text-', 'bg-'),
+          confidencePulse[confidence]
+        )}
+        style={{ animationDuration: confidence === 'High' ? '2.5s' : '3.5s' }}
+      ></div>
+      <div
+        className={cn(
+          'relative inline-flex items-center justify-center gap-2 font-headline font-bold rounded-full border-2 bg-background/80 backdrop-blur-sm',
+          config.color,
+          sizeClasses[size]
+        )}
+        style={{ borderColor: config.borderColor }}
+      >
+        <Icon className={cn(iconSizeClasses[size])} />
+        <span>{riskLevel} Risk</span>
+      </div>
     </div>
   );
 };

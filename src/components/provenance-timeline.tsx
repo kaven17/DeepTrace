@@ -4,13 +4,14 @@ import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import type { TimelineEvent } from '@/lib/types';
-import { ArrowRight, Info } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ProvenanceTimelineProps {
   timeline: TimelineEvent[];
+  visibleNodes: number;
 }
 
-const ProvenanceTimeline: React.FC<ProvenanceTimelineProps> = ({ timeline }) => {
+const ProvenanceTimeline: React.FC<ProvenanceTimelineProps> = ({ timeline, visibleNodes }) => {
   if (!timeline || timeline.length === 0) {
     return <p className="text-muted-foreground">No provenance data available.</p>;
   }
@@ -30,17 +31,21 @@ const ProvenanceTimeline: React.FC<ProvenanceTimelineProps> = ({ timeline }) => 
 
   return (
     <div className="w-full overflow-x-auto py-4">
-      <div className="relative flex items-center space-x-2 min-w-max">
+      <div className="relative flex items-start space-x-2 min-w-max h-28">
         {/* Dotted line */}
-        <div className="absolute top-1/2 left-0 w-full h-px bg-border border-t border-dashed -translate-y-6"></div>
+        <div className="absolute top-4 left-0 w-full h-px bg-border border-t border-dashed"></div>
         
         {timeline.map((event, index) => (
           <React.Fragment key={index}>
-            <div className="relative z-10">
+            <div className={cn("relative z-10 transition-all duration-500 ease-in-out",
+              index < visibleNodes ? 'opacity-100' : 'opacity-0'
+            )}>
               <Popover>
-                <PopoverTrigger asChild>
-                  <div className="group flex flex-col items-center cursor-pointer text-center space-y-2 p-2 rounded-lg hover:bg-muted transition-colors w-32">
-                    <div className="w-4 h-4 bg-background border-2 border-primary rounded-full group-hover:scale-125 transition-transform"></div>
+                <PopoverTrigger asChild disabled={index >= visibleNodes}>
+                  <div className={cn("group flex flex-col items-center cursor-pointer text-center space-y-2 p-2 rounded-lg hover:bg-muted transition-colors w-32", { 'cursor-default': index >= visibleNodes })}>
+                    <div className={cn("w-4 h-4 bg-background border-2 rounded-full transition-all duration-300", 
+                      index === visibleNodes - 1 ? 'border-accent scale-150' : 'border-primary group-hover:scale-125'
+                    )}></div>
                     <Badge variant="secondary" className="text-xs truncate w-full">
                       {event.platform}
                     </Badge>
@@ -60,9 +65,6 @@ const ProvenanceTimeline: React.FC<ProvenanceTimelineProps> = ({ timeline }) => 
                 </PopoverContent>
               </Popover>
             </div>
-            {index < timeline.length - 1 && (
-               <div className="w-8 h-8 flex-shrink-0"></div>
-            )}
           </React.Fragment>
         ))}
       </div>
