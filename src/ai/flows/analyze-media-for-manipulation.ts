@@ -62,7 +62,7 @@ const analyzeMediaForManipulationFlow = ai.defineFlow(
   async input => {
     const { output } = await ai.generate({
       model: googleAI.model('gemini-2.5-pro'),
-      prompt: analysisPrompt.render({ input }),
+      prompt: analysisPrompt.render(input),
       output: {
         schema: AnalyzeMediaForManipulationOutputSchema,
       },
